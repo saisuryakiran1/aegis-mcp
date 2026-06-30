@@ -1,0 +1,28 @@
+version: "2.0"
+
+weights:
+  w_b: 0.7
+  w_s: 0.3
+
+semantic_judge: stub
+
+policies:
+  - name: limit_database_access
+    target_tool: execute_sql_query
+    rules:
+      - type: ast_allowlist
+        allowed_statement_types:
+          - SELECT
+        action: BLOCK
+      - type: max_length
+        parameter: query
+        limit: 500
+        action: BLOCK
+
+  - name: financial_guardrail
+    target_tool: send_payment
+    rules:
+      - type: threshold_check
+        parameter: amount
+        max_value: 100.00
+        action: ESCALATE_TO_HUMAN

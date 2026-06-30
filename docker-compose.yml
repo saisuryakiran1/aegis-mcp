@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      UPSTREAM_MCP_URL: ${UPSTREAM_MCP_URL:-http://host.docker.internal:9000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HITL_WEBHOOK_URL: ${HITL_WEBHOOK_URL:-}
+      HITL_REVIEW_BASE_URL: ${HITL_REVIEW_BASE_URL:-http://localhost:8000}
+    volumes:
+      - ./aegis-config.yaml:/app/aegis-config.yaml:ro
+
+  console:
+    build:
+      context: ./console
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:8000}
